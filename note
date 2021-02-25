@@ -1,0 +1,74 @@
+=> User Story = Description of the application's functionality from the user perspective.
+=> Common format for user story = As a [type of user], I want [an action] so that [a benefit] Ex. As a user, i want to search for recipes so that i can find new ideas for meals.
+
+                                User Story For This App
+1. As a user, i want to search for recipes so that i can find new ideas for meals.
+    => Search functionality: input field to send request to API with serched keywords.
+    => Display results with pagination.
+    => Display recipe with cooking time, servings and ingredients.
+2. As a user, i want to be able to update the number of servings, so that i can cook a meal for different number of people.
+    => Change serving functionality: Update all ingredients according to current number of servings.
+3. As a user, i want to bookmark recipes, so that i can review them later.
+    => Bookmarking functionality: display list of all bookmarked recipes.
+4. As a user, i want to be able to create my own recipes, so that i have them all organized in the same app.
+    => User can upload his own recipes.
+    => User recipeswill automatically be bookmarked.
+    => User can only see his own recipes, not recipes from the others.
+5. As a user, i want to be able to see my bookmarks and own recipes when i leave the app and come back later, so that i can close the app safely after cooking
+    => Store bookmark data in the browser using local storage.
+    => On page load, read saved bookmarks from local storage and display.
+
+
+                                Achitecture 
+This project we are going to use:
+- MVC (Model View Controller)
+- MVP (Model View Presenter)
+- Flux
+
+Components of any architecture:
+- Business Logic:
+    => Code that solves the actual business problem.
+    => Direct related to what business does and what it needs.
+    => Example: sending message, storing transaction, calculating taxes, etc.
+- State: (Frontend)
+    => Essentially stores all the data about the application. Data about application's frontend.
+    => Should store any data that u might fetch from API or data that the user inputs or what page the user currently viewing, etc. Should be the single source of truth.
+    => UI should be kept in sync with the state. Means that if some data changes in the state, then the user interface should reflect that. Or if something changes in the UI then the state should also change.
+    => State libraries exist like Redux or MobX.
+- HTTP Library:
+    => Responsible for making and recieving AJAX requests(using fetch function).
+    => Optional but almost always necessary in real-world apps.
+- Application logic (Router)
+    => Code that is only concerned about the implementation of application itself. Ex. Handeling of UI events(click, load, etc) and navigation on the page. Mapping actions to the user navigations
+    => Handles navigation and UI events
+- Presentation Logic (UI Layer)
+    => Code that is concerned about the visible part of the application.
+    => Essentially display application state
+
+MVC (Model View Controller)
+=> View for Presentation logic, part of application interacting with the users.
+=> Model is all about application's data. Usually contain the State, Business logic that mulnipulate the state. It also contains the HTTP Library that might get some data from the web(API or backend)
+=> Controller contains Application's logic. It sits between model and view
+                               
+
+
+                                    Tool installation before start coding
+1. Install NPM => npm init => then get package.json
+2. Set up the "scripts" in package.json
+3. Install Parcel => npm i parcel@next -D (parcel@next = choose the latest version)
+4. Start Parcel by running our npm scripts "npm run start". After running this coomand, u will get error coz it's trying to Install SASS. Quit it with control + c
+5. run " npm install" it will then install SASS for us. If u still get the error with SASS here, just try to install SASS using the exact same vversion number Ex. "npm install sass@1.32.8"
+6. Then run "npm run start" again. Now we have a node_module and dist folder.
+7. Install Polyfills for ES6 features to our code base by running "npm i core-js regenerator-runtime"  And make sure to import them at the top of the .js file
+NOTE:
+**** To run a command, has to run in "bash" NOT "node"
+**** If u get error, u can quit it using control + c
+**** In Parcel, we can import more then just JS files, we can import all kinds of assets, that includes images.
+
+                                    Libraries that used in this project
+1. Fractional Library
+    => Google search: npm fractional
+    => install it with npm using command " npm install fractional "
+    => If it is installed, will appear in package.json
+    => can import it in the .js file u want " import fractional from 'fractional'; "
+    => This library export "Fraction" function constructor which has a fraction function locate inside it.
