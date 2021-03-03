@@ -46,9 +46,9 @@ Components of any architecture:
     => Essentially display application state
 
 MVC (Model View Controller)
-=> View for Presentation logic, part of application interacting with the users.
-=> Model is all about application's data. Usually contain the State, Business logic that mulnipulate the state. It also contains the HTTP Library that might get some data from the web(API or backend)
-=> Controller contains Application's logic. It sits between model and view
+=> View:for Presentation logic, part of application interacting with the users.
+=> Model: is all about application's data. Usually contain the State, Business logic that mulnipulate the state. It also contains the HTTP Library that might get some data from the web(API or backend)
+=> Controller: contains Application's logic. It sits between model and view
                                
 
 
@@ -72,3 +72,12 @@ NOTE:
     => If it is installed, will appear in package.json
     => can import it in the .js file u want " import fractional from 'fractional'; "
     => This library export "Fraction" function constructor which has a fraction function locate inside it.
+
+
+
+
+                    Event Handlers in MVC: Publisher-Subscriber Pattern
+=> We use this pattern coz we want to handle the events in the controller(controllRecipes function) coz otherwise, we would have application logic in the view, we don;t want that. On the other hand, we want to listen for events in the view(Event listeners), coz otherwise we would need DOM elements in the controller, this means we would have presentation logic in the controller, which would be wrong in our MVC implementation, DOM should be in the view. So event listeners should be attached to DOM elements in the view, but the events(callback function) should then be handled by controller functions that live in the controller module.
+=> We have a publisher which is some code which knows when to react. In this case is going to be addHandlerRender function coz it will contain the addEventListener method. Therefore it will know when to react to the event.
+=> Subscriber is a code that wants to react. This is the code that should be executed when the event happens(the callback). In this case that is the controllRecipe function(in controller.js)
+=> But Remember that the publisher(addHandlerRender) does not know yet that the subscriber(controllRecipe) even exists coz the subscriber is in the controller that the view can't access. The solution is: we can now subscribe to the publisher by passing into subscriber function as an argument. That means that as soon as the program loads, the init function is called which in turn immediately calls the addHandlerRender function from the view. So this will allow us to keep the handler(controllRecipe) in the controller and the listener in the view(addEventListener)

@@ -11,28 +11,21 @@
   => './model.js'  . = the current directory coz controller.js and model.js are in the same folder. So to be able to reach model.js, we starting from the current folder(js folder) then go to model.js
  NOTE: 
  => If u call an async function, have to await 
+
+// https://forkify-api.herokuapp.com/v2
+// https://forkify-v2.netlify.app/
 */
 
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
+import searchView from './views/searchView.js';
 import 'core-js/stable'; // For polyfilling everthing else
-import 'regenerator-runtime/runtime'; // For pokufilling async/await
-const recipeContainer = document.querySelector('.recipe');
-
-const timeout = function (s) {
-  return new Promise(function (_, reject) {
-    setTimeout(function () {
-      reject(new Error(`Request took too long! Timeout after ${s} second`));
-    }, s * 1000);
-  });
-};
-
-// https://forkify-api.herokuapp.com/v2
-// https://forkify-v2.netlify.app/
+import 'regenerator-runtime/runtime'; // For polyfilling async/await
 
 ///////////////////////////////////////
 
-const controllRecipes = async function () {
+// This function will handle the showing recipe according to what recipe user chooses
+const controlRecipes = async function () {
   try {
     /*
      =>  window.location = the entire url og our page
@@ -40,8 +33,6 @@ const controllRecipes = async function () {
      => Using slice(1) coz we only want the id number, cut off #
      */
     const id = window.location.hash.slice(1);
-    console.log('id = ' + id);
-
     if (!id) return;
     recipeView.renderSpinner();
 
@@ -49,21 +40,36 @@ const controllRecipes = async function () {
     // do await coz loadRecipe(id) is async function, it returns a promise
     // We don't assign model.loadRecipe(id) to a variable coz it returns an empty promise
     await model.loadRecipe(id);
+
     // 2. Rendering recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
-    console.log(err);
+    recipeView.renderError();
   }
 };
 
-controllRecipes();
+// This function handles the displaying all recipes according to the query
+const controlSearchResults = async function () {
+  try {
+    // 1) Get search query
+    const query = searchView.getQuery();
+    console.log(query);
+    if (!query) return;
 
-/*
-window.addEventListener('hashchange', showRecipe);
-// 'load' event = showRecipe will be called immediately after the page has completely loading
-window.addEventListener('load', showRecipe);
-*/
+    // 2) Load search results
+    await model.loadSearchResults(query);
 
-['hashchange', 'load'].forEach(ev =>
-  window.addEventListener(ev, controllRecipes)
-);
+    // 3) Render results
+    console.log(model.state.search.results);
+  } catch (err) {
+    console.log(err);
+    recipeView.renderError();
+  }
+};
+const init = function () {
+  recipeView.addHandlerRender(controlRecipes);
+  searchView.addHandlerSearch(controlSearchResults);
+};
+
+controlSearchResults();
+init();

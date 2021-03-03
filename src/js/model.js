@@ -1,19 +1,23 @@
+import { async } from 'regenerator-runtime';
+import { API_URL } from './config.js'; // import Name importing by specifying variable names in {}
+import { getJSON } from './helpers.js';
 export const state = {
   recipe: {},
+  search: {
+    query: '',
+    results: [],
+  },
 };
-// REsponsible for fetching the recipe data from API
+
 // It's an async function, so it returns a promise by default.
 export const loadRecipe = async function (id) {
   try {
-    // return response object
-    const res = await fetch(
-      `https://forkify-api.herokuapp.com/api/v2/recipes/${id}`
-    );
-    // convert a response to json // json() is available on all response objects // res.json() returns a Promise
-    const data = await res.json();
-    /* Use message from data.message coz it gives more info */
-    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
-    /* Reformat the property names in 'recipe' by assigning data.data.recipe object to 'recipe' */
+    const data = await getJSON(`${API_URL}${id}`);
+
+    /* 
+    => Reformat the property names in 'recipe' by assigning data.data.recipe object to 'recipe'
+    =>  const { recipe } = data.data;  :  const recipe  = data.data.recipe;
+    */
     const { recipe } = data.data; //
     state.recipe = {
       id: recipe.id,
@@ -27,6 +31,32 @@ export const loadRecipe = async function (id) {
     };
     // console.log(state.recipe);
   } catch (err) {
-    alert(err);
+    console.error(`${err}🔥🔥🔥🔥`);
+    throw err; // let controller handle it
   }
 };
+
+export const loadSearchResults = async function (query) {
+  try {
+    state.search.query = query;
+    const data = await getJSON(`${API_URL}?search=${query}`);
+    console.log(data);
+    /*
+     => We want to create a new array which contains the new objects where the property names are different. We want to follow the camel case convention for the varaible names Ex. image_url => image
+     */
+    state.search.results = data.data.recipes.map(rec => {
+      return {
+        id: rec.id,
+        title: rec.title,
+        publisher: rec.publisher,
+        image: rec.image_url,
+      };
+    });
+    console.log(state.search.results);
+  } catch (err) {
+    console.error(`${err}🔥🔥🔥🔥`);
+    throw err; // let controller handle it
+  }
+};
+
+loadSearchResults('pizza');
