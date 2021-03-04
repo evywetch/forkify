@@ -131,10 +131,10 @@
       this[globalName] = mainExports;
     }
   }
-})({"a54a825553f018243236f79332da4962":[function(require,module,exports) {
+})({"f4fead3546a50ce2c296f19697e88508":[function(require,module,exports) {
 var global = arguments[3];
 var HMR_HOST = null;
-var HMR_PORT = 51278;
+var HMR_PORT = 1234;
 var HMR_ENV_HASH = "d751713988987e9331980363e24189ce";
 module.bundle.HMR_BUNDLE_ID = "f80569f27528779b01b432a0f6c36b54";
 /* global HMR_HOST, HMR_PORT, HMR_ENV_HASH */
@@ -473,6 +473,8 @@ var _recipeView = _interopRequireDefault(require("./views/recipeView.js"));
 
 var _searchView = _interopRequireDefault(require("./views/searchView.js"));
 
+var _resultsView = _interopRequireDefault(require("./views/resultsView.js"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
@@ -497,8 +499,17 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 // https://forkify-v2.netlify.app/
 */
 // For polyfilling async/await
-///////////////////////////////////////
-// This function will handle the showing recipe according to what recipe user chooses
+
+/*
+Activate hot module reloading
+ => module.hot != real JS
+ => module.hot = coming from Parcel
+ */
+if (module.hot) {
+  module.hot.accept();
+} // This function will handle the showing recipe according to what recipe user chooses
+
+
 const controlRecipes = async function () {
   try {
     /*
@@ -525,19 +536,22 @@ const controlRecipes = async function () {
 
 const controlSearchResults = async function () {
   try {
-    // 1) Get search query
+    _resultsView.default.renderSpinner();
+
+    console.log(_resultsView.default); // 1) Get search query
+
     const query = _searchView.default.getQuery();
 
     console.log(query);
-    if (!query) return; // 2) Load search results
+    if (!query) return; // 2) Load search results (model.state.search.results == an array contain many recipe objects)
 
     await model.loadSearchResults(query); // 3) Render results
 
-    console.log(model.state.search.results);
+    _resultsView.default.render(model.state.search.results);
   } catch (err) {
     console.log(err);
 
-    _recipeView.default.renderError();
+    _resultsView.default.renderError();
   }
 };
 
@@ -547,9 +561,8 @@ const init = function () {
   _searchView.default.addHandlerSearch(controlSearchResults);
 };
 
-controlSearchResults();
 init();
-},{"core-js/modules/es.typed-array.float32-array.js":"d5ed5e3a2e200dcf66c948e6350ae29c","core-js/modules/es.typed-array.float64-array.js":"49914eeba57759547672886c5961b9e4","core-js/modules/es.typed-array.int8-array.js":"1fc9d0d9e9c4ca72873ee75cc9532911","core-js/modules/es.typed-array.int16-array.js":"6ba53210946e69387b5af65ca70f5602","core-js/modules/es.typed-array.int32-array.js":"52f07ad61480c3da8b1b371346f2b755","core-js/modules/es.typed-array.uint8-array.js":"6042ea91f038c74624be740ff17090b9","core-js/modules/es.typed-array.uint8-clamped-array.js":"47e53ff27a819e98075783d2516842bf","core-js/modules/es.typed-array.uint16-array.js":"20f511ab1a5fbdd3a99ff1f471adbc30","core-js/modules/es.typed-array.uint32-array.js":"8212db3659c5fe8bebc2163b12c9f547","core-js/modules/es.typed-array.from.js":"183d72778e0f99cedb12a04e35ea2d50","core-js/modules/es.typed-array.of.js":"2ee3ec99d0b3dea4fec9002159200789","core-js/modules/web.immediate.js":"140df4f8e97a45c53c66fead1f5a9e92","core-js/modules/web.url.js":"a66c25e402880ea6b966ee8ece30b6df","core-js/modules/web.url.to-json.js":"6357c5a053a36e38c0e24243e550dd86","core-js/modules/web.url-search-params.js":"2494aebefd4ca447de0ef4cfdd47509e","./model.js":"aabf248f40f7693ef84a0cb99f385d1f","./views/recipeView.js":"bcae1aced0301b01ccacb3e6f7dfede8","./views/searchView.js":"c5d792f7cac03ef65de30cc0fbb2cae7"}],"d5ed5e3a2e200dcf66c948e6350ae29c":[function(require,module,exports) {
+},{"core-js/modules/es.typed-array.float32-array.js":"d5ed5e3a2e200dcf66c948e6350ae29c","core-js/modules/es.typed-array.float64-array.js":"49914eeba57759547672886c5961b9e4","core-js/modules/es.typed-array.int8-array.js":"1fc9d0d9e9c4ca72873ee75cc9532911","core-js/modules/es.typed-array.int16-array.js":"6ba53210946e69387b5af65ca70f5602","core-js/modules/es.typed-array.int32-array.js":"52f07ad61480c3da8b1b371346f2b755","core-js/modules/es.typed-array.uint8-array.js":"6042ea91f038c74624be740ff17090b9","core-js/modules/es.typed-array.uint8-clamped-array.js":"47e53ff27a819e98075783d2516842bf","core-js/modules/es.typed-array.uint16-array.js":"20f511ab1a5fbdd3a99ff1f471adbc30","core-js/modules/es.typed-array.uint32-array.js":"8212db3659c5fe8bebc2163b12c9f547","core-js/modules/es.typed-array.from.js":"183d72778e0f99cedb12a04e35ea2d50","core-js/modules/es.typed-array.of.js":"2ee3ec99d0b3dea4fec9002159200789","core-js/modules/web.immediate.js":"140df4f8e97a45c53c66fead1f5a9e92","core-js/modules/web.url.js":"a66c25e402880ea6b966ee8ece30b6df","core-js/modules/web.url.to-json.js":"6357c5a053a36e38c0e24243e550dd86","core-js/modules/web.url-search-params.js":"2494aebefd4ca447de0ef4cfdd47509e","./model.js":"aabf248f40f7693ef84a0cb99f385d1f","./views/recipeView.js":"bcae1aced0301b01ccacb3e6f7dfede8","./views/searchView.js":"c5d792f7cac03ef65de30cc0fbb2cae7","./views/resultsView.js":"eacdbc0d50ee3d2819f3ee59366c2773"}],"d5ed5e3a2e200dcf66c948e6350ae29c":[function(require,module,exports) {
 var createTypedArrayConstructor = require('../internals/typed-array-constructor');
 
 // `Float32Array` constructor
@@ -5964,7 +5977,7 @@ const getJSON = async function (url) {
 
     const data = await res.json();
     /* 
-    => Throw error here for errors that r not from the internet connection. Coz the promise will rejects for only 1 case, internet connection.
+    => Throw error here for errors that r not from the internet connection problem. Coz the promise will rejects for only 1 case, internet connection.
     => Use message from data.message coz it gives more info 
     */
 
@@ -5996,89 +6009,24 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
-class RecipeView {
-  constructor() {
-    _defineProperty(this, "_parentElement", document.querySelector('.recipe'));
+// Import Fraction class from Fractional library
+class RecipeView extends _view.default {
+  constructor(...args) {
+    super(...args);
 
-    _defineProperty(this, "_data", void 0);
+    _defineProperty(this, "_parentElement", document.querySelector('.recipe'));
 
     _defineProperty(this, "_errorMessage", 'We could not find that recipe, please try another one!');
 
     _defineProperty(this, "_message", '');
   }
 
-  render(data) {
-    this._data = data;
-
-    const markup = this._generateMarkup(); // Set recipeContainer empty first
-
-
-    this._clear(); // Then add recipe in the recipeContainer
-
-
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  _clear() {
-    this._parentElement.innerHTML = '';
-  } // Make it public method,so then the controller can call this method in the controller.js
-
-
-  renderSpinner() {
-    const markup = `
-    <div class="spinner">
-            <svg>
-              <use href="${_icons.default}#icon-loader"></use>
-            </svg>
-          </div> 
-    `; // Empty parent element
-
-    this._clear();
-
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  renderError(message = this._errorMessage) {
-    const markup = `
-    <div class="error">
-            <div>
-              <svg>
-                <use href="${_icons.default}#icon-alert-triangle"></use>
-              </svg>
-            </div>
-            <p>${message}</p>
-          </div>
-    `;
-
-    this._clear();
-
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-
-  renderMessage(message = this._message) {
-    const markup = `
-    <div class="message">
-          <div>
-            <svg>
-              <use href="${_icons.default}#icon-smile"></use>
-            </svg>
-          </div>
-          <p>${message}</p>
-        </div>
-
-    `;
-
-    this._clear();
-
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  } // The publisher
-
-
+  // The publisher
   addHandlerRender(handler) {
     /*
-    window.addEventListener('hashchange', showRecipe);
-    // 'load' event = showRecipe will be called immediately after the page has completely loading
-    window.addEventListener('load', showRecipe);
+    => 'load' event = showRecipe will be called immediately after the page has completely loading
+        window.addEventListener('hashchange', showRecipe);
+        window.addEventListener('load', showRecipe);
     */
     ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
@@ -6123,9 +6071,6 @@ class RecipeView {
           </div>
 
           <div class="recipe__user-generated">
-            <svg>
-              <use href="${_icons.default}#icon-user"></use>
-            </svg>
           </div>
           <button class="btn--round">
             <svg class="">
@@ -6184,23 +6129,7 @@ var _default = new RecipeView(); // ${new Fraction(ing.quantity).toString()}
 
 
 exports.default = _default;
-},{"./view.js":"6a3957d8744bf1d70b2b44f3726dda59","url:../../img/icons.svg":"c9b93cf7eb41ad3e321b907fc09a943a","fractional":"ddbc156a7c16e105c8df04e9fdec967d"}],"6a3957d8744bf1d70b2b44f3726dda59":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-/*
- => This class is going to be a Parent class of all the view.
- => We export a class itself coz we r not going to create any instance of this view. We will only use it as a parent class of other child views.
- => With Parcel and Babel, inharitance between truely private fields and methods(with #) does not work yet. So here we have to use the the old  way of JS of protected methods and properties(using _ )
- */
-class View {}
-
-exports.default = View;
-},{}],"c9b93cf7eb41ad3e321b907fc09a943a":[function(require,module,exports) {
+},{"url:../../img/icons.svg":"c9b93cf7eb41ad3e321b907fc09a943a","fractional":"ddbc156a7c16e105c8df04e9fdec967d","./view.js":"6a3957d8744bf1d70b2b44f3726dda59"}],"c9b93cf7eb41ad3e321b907fc09a943a":[function(require,module,exports) {
 module.exports = require('./bundle-url').getBundleURL() + require('./relative-path')("01b432a0f6c36b54", "7010a1ac2eeebda6");
 },{"./bundle-url":"2146da1905b95151ed14d455c784e7b7","./relative-path":"1b9943ef25c7bbdf0dd1b9fa91880a6c"}],"2146da1905b95151ed14d455c784e7b7":[function(require,module,exports) {
 "use strict";
@@ -6682,7 +6611,102 @@ Fraction.primeFactors = function(n)
 
 module.exports.Fraction = Fraction
 
-},{}],"c5d792f7cac03ef65de30cc0fbb2cae7":[function(require,module,exports) {
+},{}],"6a3957d8744bf1d70b2b44f3726dda59":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// Parcel 2
+class View {
+  constructor() {
+    _defineProperty(this, "_data", void 0);
+  }
+
+  render(data) {
+    // data can be an object or an array object, so we check both cases
+    if (!data || Array.isArray(data) && data.length === 0) {
+      // Exit this function immediately and also so render the error
+      return this.renderError();
+    }
+
+    this._data = data;
+
+    const markup = this._generateMarkup(); // Set recipeContainer empty first
+
+
+    this._clear(); // Then add recipe in the recipeContainer
+
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  _clear() {
+    this._parentElement.innerHTML = '';
+  } // Make it public method,so then the controller can call this method in the controller.js
+
+
+  renderSpinner() {
+    const markup = `
+      <div class="spinner">
+              <svg>
+                <use href="${_icons.default}#icon-loader"></use>
+              </svg>
+            </div> 
+      `; // Empty parent element
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  renderError(message = this._errorMessage) {
+    const markup = `
+      <div class="error">
+              <div>
+                <svg>
+                  <use href="${_icons.default}#icon-alert-triangle"></use>
+                </svg>
+              </div>
+              <p>${message}</p>
+            </div>
+      `;
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  renderMessage(message = this._message) {
+    const markup = `
+      <div class="message">
+            <div>
+              <svg>
+                <use href="${_icons.default}#icon-smile"></use>
+              </svg>
+            </div>
+            <p>${message}</p>
+          </div>
+  
+      `;
+
+    this._clear();
+
+    this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+}
+
+exports.default = View;
+},{"url:../../img/icons.svg":"c9b93cf7eb41ad3e321b907fc09a943a"}],"c5d792f7cac03ef65de30cc0fbb2cae7":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -6694,12 +6718,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 class SearchView {
   constructor() {
-    _defineProperty(this, "_parentEl", document.querySelector('.search'));
+    _defineProperty(this, "_parentElement", document.querySelector('.search'));
   }
 
   getQuery() {
     // Get the query
-    const query = this._parentEl.querySelector('.search__field').value; // Clear the search input field
+    const query = this._parentElement.querySelector('.search__field').value; // Clear the search input field
 
 
     this._clearInput();
@@ -6709,12 +6733,12 @@ class SearchView {
 
 
   _clearInput() {
-    this._parentEl.querySelector('.search__field').value = '';
+    this._parentElement.querySelector('.search__field').value = '';
   } // The publisher
 
 
   addHandlerSearch(handler) {
-    this._parentEl.addEventListener('submit', function (e) {
+    this._parentElement.addEventListener('submit', function (e) {
       /* 
           => Can't pass a handler function here directly coz when we submit the form, we need to first prevent the default action, otherwise the page is going to reload
           */
@@ -6728,6 +6752,59 @@ class SearchView {
 var _default = new SearchView();
 
 exports.default = _default;
-},{}]},{},["a54a825553f018243236f79332da4962","1899f023ea6d4bfddfbaf17e59af669a","175e469a7ea7db1c8c0744d04372621f"], null)
+},{}],"eacdbc0d50ee3d2819f3ee59366c2773":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _view = _interopRequireDefault(require("./view.js"));
+
+var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// Parcel 2
+class ResultsView extends _view.default {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "_parentElement", document.querySelector('.results'));
+
+    _defineProperty(this, "_errorMessage", 'No recipes found for your query! Please try again ;)');
+
+    _defineProperty(this, "_message", '');
+  }
+
+  _generateMarkup() {
+    return this._data.map(this._generateMarkupPreview).join('');
+  }
+
+  _generateMarkupPreview(result) {
+    return ` 
+    <li class="preview">
+            <a class="preview__link" href="#${result.id}">
+              <figure class="preview__fig">
+                <img src="${result.image}" alt="${result.title}" />
+              </figure>
+              <div class="preview__data">
+                <h4 class="preview__title">${result.title}</h4>
+                <p class="preview__publisher">${result.publisher}</p>
+              </div>
+            </a>
+          </li>
+      `;
+  }
+
+}
+
+var _default = new ResultsView();
+
+exports.default = _default;
+},{"./view.js":"6a3957d8744bf1d70b2b44f3726dda59","url:../../img/icons.svg":"c9b93cf7eb41ad3e321b907fc09a943a"}]},{},["f4fead3546a50ce2c296f19697e88508","1899f023ea6d4bfddfbaf17e59af669a","175e469a7ea7db1c8c0744d04372621f"], null)
 
 //# sourceMappingURL=controller.f80569f2.js.map

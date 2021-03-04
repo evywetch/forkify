@@ -9,74 +9,20 @@
 import View from './view.js';
 // import icons from '../img/icons.svg'; // Parcel 1
 import icons from 'url:../../img/icons.svg'; // Parcel 2
-import { Fraction } from 'fractional';
+import { Fraction } from 'fractional'; // Import Fraction class from Fractional library
 
-class RecipeView {
+class RecipeView extends View {
   _parentElement = document.querySelector('.recipe');
-  _data;
   _errorMessage = 'We could not find that recipe, please try another one!';
   _message = '';
-  render(data) {
-    this._data = data;
-    const markup = this._generateMarkup();
-    // Set recipeContainer empty first
-    this._clear();
-    // Then add recipe in the recipeContainer
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-  _clear() {
-    this._parentElement.innerHTML = '';
-  }
-  // Make it public method,so then the controller can call this method in the controller.js
-  renderSpinner() {
-    const markup = `
-    <div class="spinner">
-            <svg>
-              <use href="${icons}#icon-loader"></use>
-            </svg>
-          </div> 
-    `;
-    // Empty parent element
-    this._clear();
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
-  renderError(message = this._errorMessage) {
-    const markup = `
-    <div class="error">
-            <div>
-              <svg>
-                <use href="${icons}#icon-alert-triangle"></use>
-              </svg>
-            </div>
-            <p>${message}</p>
-          </div>
-    `;
-    this._clear();
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
 
-  renderMessage(message = this._message) {
-    const markup = `
-    <div class="message">
-          <div>
-            <svg>
-              <use href="${icons}#icon-smile"></use>
-            </svg>
-          </div>
-          <p>${message}</p>
-        </div>
-
-    `;
-    this._clear();
-    this._parentElement.insertAdjacentHTML('afterbegin', markup);
-  }
   // The publisher
   addHandlerRender(handler) {
     /*
-window.addEventListener('hashchange', showRecipe);
-// 'load' event = showRecipe will be called immediately after the page has completely loading
-window.addEventListener('load', showRecipe);
-*/
+    => 'load' event = showRecipe will be called immediately after the page has completely loading
+        window.addEventListener('hashchange', showRecipe);
+        window.addEventListener('load', showRecipe);
+    */
     ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
 
@@ -126,9 +72,6 @@ window.addEventListener('load', showRecipe);
           </div>
 
           <div class="recipe__user-generated">
-            <svg>
-              <use href="${icons}#icon-user"></use>
-            </svg>
           </div>
           <button class="btn--round">
             <svg class="">

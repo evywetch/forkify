@@ -25,7 +25,7 @@ export const getJSON = async function (url) {
     // convert a response to json // json() is available on all response objects // res.json() returns a Promise
     const data = await res.json();
     /* 
-    => Throw error here for errors that r not from the internet connection. Coz the promise will rejects for only 1 case, internet connection.
+    => Throw error here for errors that r not from the internet connection problem. Coz the promise will rejects for only 1 case, internet connection.
     => Use message from data.message coz it gives more info 
     */
     if (!res.ok) throw new Error(`${data.message} (${res.status})`);

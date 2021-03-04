@@ -19,11 +19,17 @@
 import * as model from './model.js';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
+import resultsView from './views/resultsView.js';
 import 'core-js/stable'; // For polyfilling everthing else
 import 'regenerator-runtime/runtime'; // For polyfilling async/await
-
-///////////////////////////////////////
-
+/*
+Activate hot module reloading
+ => module.hot != real JS
+ => module.hot = coming from Parcel
+ */
+if (module.hot) {
+  module.hot.accept();
+}
 // This function will handle the showing recipe according to what recipe user chooses
 const controlRecipes = async function () {
   try {
@@ -51,19 +57,21 @@ const controlRecipes = async function () {
 // This function handles the displaying all recipes according to the query
 const controlSearchResults = async function () {
   try {
+    resultsView.renderSpinner();
+    console.log(resultsView);
     // 1) Get search query
     const query = searchView.getQuery();
     console.log(query);
     if (!query) return;
 
-    // 2) Load search results
+    // 2) Load search results (model.state.search.results == an array contain many recipe objects)
     await model.loadSearchResults(query);
 
     // 3) Render results
-    console.log(model.state.search.results);
+    resultsView.render(model.state.search.results);
   } catch (err) {
     console.log(err);
-    recipeView.renderError();
+    resultsView.renderError();
   }
 };
 const init = function () {
@@ -71,5 +79,4 @@ const init = function () {
   searchView.addHandlerSearch(controlSearchResults);
 };
 
-controlSearchResults();
 init();
