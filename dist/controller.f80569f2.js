@@ -580,10 +580,19 @@ const controlServing = function (newServings) {
   _recipeView.default.update(model.state.recipe);
 };
 
+const controlAddBookMark = function () {
+  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);else model.deleteBookmark(model.state.recipe.id);
+  console.log('bookmarked', model.state.recipe); // Update the text and attribute in HTML of current recipe / then the bookmark icon will appear
+
+  _recipeView.default.update(model.state.recipe);
+};
+
 const init = function () {
   _recipeView.default.addHandlerRender(controlRecipes);
 
   _recipeView.default.addHandlerUpdateServings(controlServing);
+
+  _recipeView.default.addHandlerAddBookMark(controlAddBookMark);
 
   _searchView.default.addHandlerSearch(controlSearchResults);
 
@@ -5127,7 +5136,7 @@ $({ target: 'URL', proto: true, enumerable: true }, {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.updateServings = exports.getSearchResultsPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
+exports.deleteBookmark = exports.addBookmark = exports.updateServings = exports.getSearchResultsPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
 
 var _regeneratorRuntime = require("regenerator-runtime");
 
@@ -5143,7 +5152,8 @@ const state = {
     results: [],
     page: 1,
     resultsPerPage: _config.REC_PER_PAGE
-  }
+  },
+  bookmarks: []
 }; // It's an async function, so it returns a promise by default.
 
 exports.state = state;
@@ -5169,7 +5179,10 @@ const loadRecipe = async function (id) {
       servings: recipe.servings,
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients
-    }; // console.log(state.recipe);
+    }; // If the recipe is bookmarked, it will has bookmark icon when the recipe is loaded
+
+    if (state.bookmarks.some(bookmark => bookmark.id === id)) state.recipe.bookmarked = true;else state.recipe.bookmarked = false;
+    console.log(state.recipe);
   } catch (err) {
     console.error(`${err}🔥🔥🔥🔥`);
     throw err; // let controller handle it
@@ -5194,7 +5207,9 @@ const loadSearchResults = async function (query) {
         publisher: rec.publisher,
         image: rec.image_url
       };
-    }); // console.log(state.search.results);
+    }); //Set page = 1 everytime that user querys new results, if not,it won't update the page for new results
+
+    state.search.page = 1; // console.log(state.search.results);
   } catch (err) {
     console.error(`${err}🔥🔥🔥🔥`);
     throw err; // let controller handle it
@@ -5226,6 +5241,29 @@ const updateServings = function (newServings) {
 };
 
 exports.updateServings = updateServings;
+
+const addBookmark = function (recipe) {
+  // Add bookmark
+  state.bookmarks.push(recipe); // Mark current recipe as bookmarked
+
+  /* 
+  If the id of the recipe that we pass in here === the id of the current recipe(loaded on the page), then add bookmarked property and set it to true to this recipe
+  */
+
+  if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+};
+
+exports.addBookmark = addBookmark;
+
+const deleteBookmark = function (id) {
+  const index = state.bookmarks.findIndex(el => el.id === id); // Delete bookmark
+
+  state.bookmarks.splice(index, 1); // Mark current recipe as NOT bookmarked
+
+  if (id === state.recipe.id) state.recipe.bookmarked = false;
+};
+
+exports.deleteBookmark = deleteBookmark;
 },{"regenerator-runtime":"e155e0d3930b156f86c48e8d05522b16","./config.js":"09212d541c5c40ff2bd93475a904f8de","./helpers.js":"0e8dcd8a4e1c61cf18f78e1c2563655d"}],"e155e0d3930b156f86c48e8d05522b16":[function(require,module,exports) {
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
@@ -6098,8 +6136,16 @@ class RecipeView extends _view.default {
     });
   }
 
+  addHandlerAddBookMark(handler) {
+    this._parentElement.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn--bookmark'); // We do guard clause coz sometime .btn--bookmark may hasn't existed yet
+
+      if (!btn) return;
+      handler();
+    });
+  }
+
   _generateMarkup() {
-    console.log('RECIPE', this._data);
     return `
     <figure class="recipe__fig">
           <img src="${this._data.image}" alt="${this._data.title}" class="recipe__img" />
@@ -6139,9 +6185,9 @@ class RecipeView extends _view.default {
 
           <div class="recipe__user-generated">
           </div>
-          <button class="btn--round">
+          <button class="btn--round btn--bookmark">
             <svg class="">
-              <use href="${_icons.default}#icon-bookmark-fill"></use>
+              <use href="${_icons.default}#icon-bookmark${this._data.bookmarked ? '-fill' : ''}"></use>
             </svg>
           </button>
         </div>

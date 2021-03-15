@@ -94,3 +94,6 @@ NOTE:
 => NOTE: isEqualNode() is used to compare if 2 nodes(DOM elements) have SAME CONTENT
 => NOTE: HAVE TO check out the defference between element and node
 => NOTE: window.location.hash  == how to get the hash(the hash is the # + id) from the URL
+=> Array.some() == array method that returns true or false (Model.loadRecipe)
+=> Array.findIndex() == array method that used to find the index of the specified id
+=> NOTE: Array.splice(index, amount of elements that want to delete) == array mthod, used for deleting element with the specific index(model.deleteBookmark)

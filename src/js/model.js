@@ -9,6 +9,7 @@ export const state = {
     page: 1,
     resultsPerPage: REC_PER_PAGE,
   },
+  bookmarks: [],
 };
 
 // It's an async function, so it returns a promise by default.
@@ -31,7 +32,12 @@ export const loadRecipe = async function (id) {
       cookingTime: recipe.cooking_time,
       ingredients: recipe.ingredients,
     };
-    // console.log(state.recipe);
+    // If the recipe is bookmarked, it will has bookmark icon when the recipe is loaded
+    if (state.bookmarks.some(bookmark => bookmark.id === id))
+      state.recipe.bookmarked = true;
+    else state.recipe.bookmarked = false;
+
+    console.log(state.recipe);
   } catch (err) {
     console.error(`${err}🔥🔥🔥🔥`);
     throw err; // let controller handle it
@@ -54,6 +60,8 @@ export const loadSearchResults = async function (query) {
         image: rec.image_url,
       };
     });
+    //Set page = 1 everytime that user querys new results, if not,it won't update the page for new results
+    state.search.page = 1;
     // console.log(state.search.results);
   } catch (err) {
     console.error(`${err}🔥🔥🔥🔥`);
@@ -76,4 +84,23 @@ export const updateServings = function (newServings) {
   });
   // Update servings
   state.recipe.servings = newServings;
+};
+
+export const addBookmark = function (recipe) {
+  // Add bookmark
+  state.bookmarks.push(recipe);
+
+  // Mark current recipe as bookmarked
+  /* 
+  If the id of the recipe that we pass in here === the id of the current recipe(loaded on the page), then add bookmarked property and set it to true to this recipe
+  */
+  if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+};
+export const deleteBookmark = function (id) {
+  const index = state.bookmarks.findIndex(el => el.id === id);
+  // Delete bookmark
+  state.bookmarks.splice(index, 1);
+
+  // Mark current recipe as NOT bookmarked
+  if (id === state.recipe.id) state.recipe.bookmarked = false;
 };

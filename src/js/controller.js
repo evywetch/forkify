@@ -98,9 +98,18 @@ const controlServing = function (newServings) {
   // recipeView.render(model.state.recipe);
   recipeView.update(model.state.recipe);
 };
+
+const controlAddBookMark = function () {
+  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
+  else model.deleteBookmark(model.state.recipe.id);
+  console.log('bookmarked', model.state.recipe);
+  // Update the text and attribute in HTML of current recipe / then the bookmark icon will appear
+  recipeView.update(model.state.recipe);
+};
 const init = function () {
   recipeView.addHandlerRender(controlRecipes);
   recipeView.addHandlerUpdateServings(controlServing);
+  recipeView.addHandlerAddBookMark(controlAddBookMark);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
 };
