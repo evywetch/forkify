@@ -1,11 +1,13 @@
 import { async } from 'regenerator-runtime';
-import { API_URL } from './config.js'; // import Name importing by specifying variable names in {}
+import { API_URL, REC_PER_PAGE } from './config.js'; // import Name importing by specifying variable names in {}
 import { getJSON } from './helpers.js';
 export const state = {
   recipe: {},
   search: {
     query: '',
     results: [],
+    page: 1,
+    resultsPerPage: REC_PER_PAGE,
   },
 };
 
@@ -40,7 +42,7 @@ export const loadSearchResults = async function (query) {
   try {
     state.search.query = query;
     const data = await getJSON(`${API_URL}?search=${query}`);
-    console.log(data);
+    // console.log(data);
     /*
      => We want to create a new array which contains the new objects where the property names are different. We want to follow the camel case convention for the varaible names Ex. image_url => image
      */
@@ -52,11 +54,26 @@ export const loadSearchResults = async function (query) {
         image: rec.image_url,
       };
     });
-    console.log(state.search.results);
+    // console.log(state.search.results);
   } catch (err) {
     console.error(`${err}🔥🔥🔥🔥`);
     throw err; // let controller handle it
   }
 };
+// This function responsible for pagination, returns 10 results(recipes) each page
+export const getSearchResultsPage = function (page = state.search.page) {
+  state.search.page = page;
+  const start = (page - 1) * state.search.resultsPerPage; // 0
+  const end = page * state.search.resultsPerPage; // 10
+  return state.search.results.slice(start, end); // slice() doesn't take the end position
+};
 
-loadSearchResults('pizza');
+export const updateServings = function (newServings) {
+  // Update ingredients quantity
+  state.recipe.ingredients.forEach(ing => {
+    // newQt = (oldQt * newServings) / oldServinds
+    ing.quantity = (ing.quantity * newServings) / state.recipe.servings;
+  });
+  // Update servings
+  state.recipe.servings = newServings;
+};

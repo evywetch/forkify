@@ -81,3 +81,16 @@ NOTE:
 => We have a publisher which is some code which knows when to react. In this case is going to be addHandlerRender function coz it will contain the addEventListener method. Therefore it will know when to react to the event.
 => Subscriber is a code that wants to react. This is the code that should be executed when the event happens(the callback). In this case that is the controllRecipe function(in controller.js)
 => But Remember that the publisher(addHandlerRender) does not know yet that the subscriber(controllRecipe) even exists coz the subscriber is in the controller that the view can't access. The solution is: we can now subscribe to the publisher by passing into subscriber function as an argument. That means that as soon as the program loads, the init function is called which in turn immediately calls the addHandlerRender function from the view. So this will allow us to keep the handler(controllRecipe) in the controller and the listener in the view(addEventListener)
+
+                            
+                                Method / Techniques using in this app
+
+=> Math.ciel() == round up number
+=> e.target.closest() == Event delegation == Mostly used to find the element that is clicked, closest() will find the closest PARENT of the clicked element. Ex. e.target.closest('.btn--inline') = find the closest '.btn--inline' element (paginationView.js)
+=> Custom data attribute => We can use data attribute to store data ex. id, page number for later use. Ex. data-goto. And get the data from the attribute by using dataset, ex. btn.dataset.goto (paginationView.js)
+=> NOTE: In JS this._data.servings - 1 ==  this._data.servings -= 1 ;  
+=> NOTE: Different between calling a normal functions that don't belong to any object or class VS calling a methods that belong to any object or class  ==> normalFunction() VS this.classMethod
+=> Array.from() convert node list into an array
+=> NOTE: isEqualNode() is used to compare if 2 nodes(DOM elements) have SAME CONTENT
+=> NOTE: HAVE TO check out the defference between element and node
+=> NOTE: window.location.hash  == how to get the hash(the hash is the # + id) from the URL
