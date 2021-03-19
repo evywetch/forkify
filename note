@@ -73,6 +73,15 @@ NOTE:
     => can import it in the .js file u want " import fractional from 'fractional'; "
     => This library export "Fraction" function constructor which has a fraction function locate inside it.
 
+                                   APIs that used in this project
+1. Forkify API
+2. Local storage API from browser (model.js)
+3. History API from browser (controller.controlAddRecipe())
+=>  window.history.pushState();
+=> History API gives a history object
+=> pushState() == allows us to change the URL without having to reloading the page
+=> pushState() == takes 3 arguments; 1) called a state 2) title 3) URL
+=> NOTE: we can use History API to go back and forward just as we do click back and forward in the browser, ex. window.history.back()
 
 
 
@@ -97,3 +106,11 @@ NOTE:
 => Array.some() == array method that returns true or false (Model.loadRecipe)
 => Array.findIndex() == array method that used to find the index of the specified id
 => NOTE: Array.splice(index, amount of elements that want to delete) == array mthod, used for deleting element with the specific index(model.deleteBookmark)
+=> NOTE: FormData = an object from browser API, use it to collect all the data in the form, so we don't have to write to code to get data from the form line by lice for each element in the form. (addRecipeView -> addHandlerUpload())
+=> NOTE: Object.fromEntries(arrayObj) == covert array to object
+Ex. [Array(2), Array(2)] == [['prop1', 1], ['prop2', 2]] ==> {prop1: 1, prop2: 2}
+=> NOTE: Object.entries(obj) == covert object to array 
+Ex. {prop1: 1, prop2: 2}  ==> [Array(2), Array(2)] == [['prop1', 1], ['prop2', 2]]
+=> NOTE: Array.filter() == returns an aaray only the entries that we filtered in
+=> NOTE: When we call an async function, have to use AWAIT keyword. Then we will a promise object from it; either resolve or reject promise, otherwise we won't get anything from that async function. Await keyword can only be used in async function!!
+=> NOTE: && operator short-circiut

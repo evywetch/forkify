@@ -17,10 +17,14 @@
 */
 
 import * as model from './model.js';
+import { MODEL_CLOSE_SEC } from './config.js';
 import recipeView from './views/recipeView.js';
 import searchView from './views/searchView.js';
 import resultsView from './views/resultsView.js';
+import bookmarksView from './views/bookmarksView.js';
 import paginationView from './views/paginationView.js';
+import addRecipeView from './views/addRecipeView.js';
+
 import 'core-js/stable'; // For polyfilling everthing else
 import 'regenerator-runtime/runtime'; // For polyfilling async/await
 /*
@@ -35,7 +39,7 @@ if (module.hot) {
 const controlRecipes = async function () {
   try {
     /*
-     =>  window.location = the entire url og our page
+     =>  window.location = get the entire url of our page
      => hash = # + id = #5ed6604591c37cdc054bc88
      => Using slice(1) coz we only want the id number, cut off #
      */
@@ -45,16 +49,19 @@ const controlRecipes = async function () {
 
     // 0. Update results view to mark selected search results
     resultsView.update(model.getSearchResultsPage());
+    // 1. Update bookmarks view to mark selected if the recipe is also in the bookmark
+    bookmarksView.update(model.state.bookmarks);
 
-    // 1. Loading recipe
+    // 2. Loading recipe
     // do await coz loadRecipe(id) is async function, it returns a promise
     // We don't assign model.loadRecipe(id) to a variable coz it returns an empty promise
     await model.loadRecipe(id);
 
-    // 2. Rendering recipe
+    // 3. Rendering recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
     recipeView.renderError();
+    console.error(err);
   }
 };
 
@@ -100,18 +107,51 @@ const controlServing = function (newServings) {
 };
 
 const controlAddBookMark = function () {
+  // 1) Add OR Remove a bookmark
   if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
   else model.deleteBookmark(model.state.recipe.id);
-  console.log('bookmarked', model.state.recipe);
-  // Update the text and attribute in HTML of current recipe / then the bookmark icon will appear
+  // 2) Update the text and attribute in HTML of current recipe / then the bookmark icon will appear
   recipeView.update(model.state.recipe);
+  // 3) Render bookmarks
+  bookmarksView.render(model.state.bookmarks);
+};
+
+const controlBookmarks = function () {
+  bookmarksView.render(model.state.bookmarks);
+};
+
+const controlAddRecipe = async function (newRecipe) {
+  try {
+    // Show loading spinner
+    addRecipeView.renderSpinner();
+    // Upload new recipe data
+    const ingredients = await model.uploadRecipe(newRecipe);
+    console.log(model.state.recipe);
+    // Render recipe
+    recipeView.render(model.state.recipe);
+    // Success message
+    addRecipeView.renderMessage();
+    // Render bookmark view - don't use update() coz we want to insert new bookmark NOT editing the existing one
+    bookmarksView.render(model.state.bookmarks);
+    // Change ID in URL -- add id of the newly added recipe in the url
+    window.history.pushState(null, '', `#${model.state.recipe.id}`);
+    // Close form after 2.5 sec
+    setTimeout(function () {
+      addRecipeView._toggleWindow();
+    }, MODEL_CLOSE_SEC * 1000); // * 1000 to convert to milliseconds
+  } catch (err) {
+    console.error('🔥', err);
+    addRecipeView.renderError(err.message);
+  }
 };
 const init = function () {
+  bookmarksView.addHandlerRender(controlBookmarks);
   recipeView.addHandlerRender(controlRecipes);
   recipeView.addHandlerUpdateServings(controlServing);
   recipeView.addHandlerAddBookMark(controlAddBookMark);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
+  addRecipeView.addHandlerUpload(controlAddRecipe);
 };
 
 init();

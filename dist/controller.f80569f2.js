@@ -469,13 +469,19 @@ require("core-js/modules/web.url-search-params.js");
 
 var model = _interopRequireWildcard(require("./model.js"));
 
+var _config = require("./config.js");
+
 var _recipeView = _interopRequireDefault(require("./views/recipeView.js"));
 
 var _searchView = _interopRequireDefault(require("./views/searchView.js"));
 
 var _resultsView = _interopRequireDefault(require("./views/resultsView.js"));
 
+var _bookmarksView = _interopRequireDefault(require("./views/bookmarksView.js"));
+
 var _paginationView = _interopRequireDefault(require("./views/paginationView.js"));
+
+var _addRecipeView = _interopRequireDefault(require("./views/addRecipeView.js"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -515,7 +521,7 @@ if (module.hot) {
 const controlRecipes = async function () {
   try {
     /*
-     =>  window.location = the entire url og our page
+     =>  window.location = get the entire url of our page
      => hash = # + id = #5ed6604591c37cdc054bc88
      => Using slice(1) coz we only want the id number, cut off #
      */
@@ -525,16 +531,21 @@ const controlRecipes = async function () {
     _recipeView.default.renderSpinner(); // 0. Update results view to mark selected search results
 
 
-    _resultsView.default.update(model.getSearchResultsPage()); // 1. Loading recipe
+    _resultsView.default.update(model.getSearchResultsPage()); // 1. Update bookmarks view to mark selected if the recipe is also in the bookmark
+
+
+    _bookmarksView.default.update(model.state.bookmarks); // 2. Loading recipe
     // do await coz loadRecipe(id) is async function, it returns a promise
     // We don't assign model.loadRecipe(id) to a variable coz it returns an empty promise
 
 
-    await model.loadRecipe(id); // 2. Rendering recipe
+    await model.loadRecipe(id); // 3. Rendering recipe
 
     _recipeView.default.render(model.state.recipe);
   } catch (err) {
     _recipeView.default.renderError();
+
+    console.error(err);
   }
 }; // This function handles the displaying all recipes according to the query(on the left)
 
@@ -581,13 +592,52 @@ const controlServing = function (newServings) {
 };
 
 const controlAddBookMark = function () {
-  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);else model.deleteBookmark(model.state.recipe.id);
-  console.log('bookmarked', model.state.recipe); // Update the text and attribute in HTML of current recipe / then the bookmark icon will appear
+  // 1) Add OR Remove a bookmark
+  if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);else model.deleteBookmark(model.state.recipe.id); // 2) Update the text and attribute in HTML of current recipe / then the bookmark icon will appear
 
-  _recipeView.default.update(model.state.recipe);
+  _recipeView.default.update(model.state.recipe); // 3) Render bookmarks
+
+
+  _bookmarksView.default.render(model.state.bookmarks);
+};
+
+const controlBookmarks = function () {
+  _bookmarksView.default.render(model.state.bookmarks);
+};
+
+const controlAddRecipe = async function (newRecipe) {
+  try {
+    // Show loading spinner
+    _addRecipeView.default.renderSpinner(); // Upload new recipe data
+
+
+    const ingredients = await model.uploadRecipe(newRecipe);
+    console.log(model.state.recipe); // Render recipe
+
+    _recipeView.default.render(model.state.recipe); // Success message
+
+
+    _addRecipeView.default.renderMessage(); // Render bookmark view - don't use update() coz we want to insert new bookmark NOT editing the existing one
+
+
+    _bookmarksView.default.render(model.state.bookmarks); // Change ID in URL -- add id of the newly added recipe in the url
+
+
+    window.history.pushState(null, '', `#${model.state.recipe.id}`); // Close form after 2.5 sec
+
+    setTimeout(function () {
+      _addRecipeView.default._toggleWindow();
+    }, _config.MODEL_CLOSE_SEC * 1000); // * 1000 to convert to milliseconds
+  } catch (err) {
+    console.error('🔥', err);
+
+    _addRecipeView.default.renderError(err.message);
+  }
 };
 
 const init = function () {
+  _bookmarksView.default.addHandlerRender(controlBookmarks);
+
   _recipeView.default.addHandlerRender(controlRecipes);
 
   _recipeView.default.addHandlerUpdateServings(controlServing);
@@ -597,10 +647,12 @@ const init = function () {
   _searchView.default.addHandlerSearch(controlSearchResults);
 
   _paginationView.default.addHandlerClick(controlPagination);
+
+  _addRecipeView.default.addHandlerUpload(controlAddRecipe);
 };
 
 init();
-},{"core-js/modules/es.typed-array.float32-array.js":"d5ed5e3a2e200dcf66c948e6350ae29c","core-js/modules/es.typed-array.float64-array.js":"49914eeba57759547672886c5961b9e4","core-js/modules/es.typed-array.int8-array.js":"1fc9d0d9e9c4ca72873ee75cc9532911","core-js/modules/es.typed-array.int16-array.js":"6ba53210946e69387b5af65ca70f5602","core-js/modules/es.typed-array.int32-array.js":"52f07ad61480c3da8b1b371346f2b755","core-js/modules/es.typed-array.uint8-array.js":"6042ea91f038c74624be740ff17090b9","core-js/modules/es.typed-array.uint8-clamped-array.js":"47e53ff27a819e98075783d2516842bf","core-js/modules/es.typed-array.uint16-array.js":"20f511ab1a5fbdd3a99ff1f471adbc30","core-js/modules/es.typed-array.uint32-array.js":"8212db3659c5fe8bebc2163b12c9f547","core-js/modules/es.typed-array.from.js":"183d72778e0f99cedb12a04e35ea2d50","core-js/modules/es.typed-array.of.js":"2ee3ec99d0b3dea4fec9002159200789","core-js/modules/web.immediate.js":"140df4f8e97a45c53c66fead1f5a9e92","core-js/modules/web.url.js":"a66c25e402880ea6b966ee8ece30b6df","core-js/modules/web.url.to-json.js":"6357c5a053a36e38c0e24243e550dd86","core-js/modules/web.url-search-params.js":"2494aebefd4ca447de0ef4cfdd47509e","./model.js":"aabf248f40f7693ef84a0cb99f385d1f","./views/recipeView.js":"bcae1aced0301b01ccacb3e6f7dfede8","./views/searchView.js":"c5d792f7cac03ef65de30cc0fbb2cae7","./views/resultsView.js":"eacdbc0d50ee3d2819f3ee59366c2773","./views/paginationView.js":"d2063f3e7de2e4cdacfcb5eb6479db05"}],"d5ed5e3a2e200dcf66c948e6350ae29c":[function(require,module,exports) {
+},{"core-js/modules/es.typed-array.float32-array.js":"d5ed5e3a2e200dcf66c948e6350ae29c","core-js/modules/es.typed-array.float64-array.js":"49914eeba57759547672886c5961b9e4","core-js/modules/es.typed-array.int8-array.js":"1fc9d0d9e9c4ca72873ee75cc9532911","core-js/modules/es.typed-array.int16-array.js":"6ba53210946e69387b5af65ca70f5602","core-js/modules/es.typed-array.int32-array.js":"52f07ad61480c3da8b1b371346f2b755","core-js/modules/es.typed-array.uint8-array.js":"6042ea91f038c74624be740ff17090b9","core-js/modules/es.typed-array.uint8-clamped-array.js":"47e53ff27a819e98075783d2516842bf","core-js/modules/es.typed-array.uint16-array.js":"20f511ab1a5fbdd3a99ff1f471adbc30","core-js/modules/es.typed-array.uint32-array.js":"8212db3659c5fe8bebc2163b12c9f547","core-js/modules/es.typed-array.from.js":"183d72778e0f99cedb12a04e35ea2d50","core-js/modules/es.typed-array.of.js":"2ee3ec99d0b3dea4fec9002159200789","core-js/modules/web.immediate.js":"140df4f8e97a45c53c66fead1f5a9e92","core-js/modules/web.url.js":"a66c25e402880ea6b966ee8ece30b6df","core-js/modules/web.url.to-json.js":"6357c5a053a36e38c0e24243e550dd86","core-js/modules/web.url-search-params.js":"2494aebefd4ca447de0ef4cfdd47509e","./model.js":"aabf248f40f7693ef84a0cb99f385d1f","./views/recipeView.js":"bcae1aced0301b01ccacb3e6f7dfede8","./views/searchView.js":"c5d792f7cac03ef65de30cc0fbb2cae7","./views/resultsView.js":"eacdbc0d50ee3d2819f3ee59366c2773","./views/paginationView.js":"d2063f3e7de2e4cdacfcb5eb6479db05","./views/bookmarksView.js":"7ed9311e216aa789713f70ebeec3ed40","./views/addRecipeView.js":"4dd83c2a08c1751220d223c54dc70016","./config.js":"09212d541c5c40ff2bd93475a904f8de"}],"d5ed5e3a2e200dcf66c948e6350ae29c":[function(require,module,exports) {
 var createTypedArrayConstructor = require('../internals/typed-array-constructor');
 
 // `Float32Array` constructor
@@ -5136,7 +5188,7 @@ $({ target: 'URL', proto: true, enumerable: true }, {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.deleteBookmark = exports.addBookmark = exports.updateServings = exports.getSearchResultsPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
+exports.uploadRecipe = exports.deleteBookmark = exports.addBookmark = exports.updateServings = exports.getSearchResultsPage = exports.loadSearchResults = exports.loadRecipe = exports.state = void 0;
 
 var _regeneratorRuntime = require("regenerator-runtime");
 
@@ -5145,6 +5197,7 @@ var _config = require("./config.js");
 var _helpers = require("./helpers.js");
 
 // import Name importing by specifying variable names in {}
+// import { getJSON, sendJSON } from './helpers.js';
 const state = {
   recipe: {},
   search: {
@@ -5154,32 +5207,45 @@ const state = {
     resultsPerPage: _config.REC_PER_PAGE
   },
   bookmarks: []
-}; // It's an async function, so it returns a promise by default.
-
-exports.state = state;
-
-const loadRecipe = async function (id) {
-  try {
-    const data = await (0, _helpers.getJSON)(`${_config.API_URL}${id}`);
-    /* 
+};
+/* 
     => Reformat the property names in 'recipe' by assigning data.data.recipe object to 'recipe'
     =>  const { recipe } = data.data;  :  const recipe  = data.data.recipe;
     */
 
-    const {
-      recipe
-    } = data.data; //
+exports.state = state;
 
-    state.recipe = {
-      id: recipe.id,
-      title: recipe.title,
-      publisher: recipe.publisher,
-      sourceUrl: recipe.source_url,
-      image: recipe.image_url,
-      servings: recipe.servings,
-      cookingTime: recipe.cooking_time,
-      ingredients: recipe.ingredients
-    }; // If the recipe is bookmarked, it will has bookmark icon when the recipe is loaded
+const createRecipeObject = function (data) {
+  /*
+  NOTE: How to conditionally add a property to an object
+         ...(recipe.key && { key: recipe.key })
+   => && operator short-circuits
+   => if recipe.key is falty value, if it doesn't exist, then nothing happens here, then ... (destructuring) does nothing
+   => But if recipe.key has value, or does exist then the 2nd part of the operator { key: recipe.key }, is executed and returned. That means { key: recipe.key } is going to be returned, then the whole expression (recipe.key && { key: recipe.key }) will become the returned object, then we can spread that object to put the value here(the ... part). The outcome will be key: recipe.key
+   */
+  const {
+    recipe
+  } = data.data;
+  return {
+    id: recipe.id,
+    title: recipe.title,
+    publisher: recipe.publisher,
+    sourceUrl: recipe.source_url,
+    image: recipe.image_url,
+    servings: recipe.servings,
+    cookingTime: recipe.cooking_time,
+    ingredients: recipe.ingredients,
+    ...(recipe.key && {
+      key: recipe.key
+    })
+  };
+}; // It's an async function, so it returns a promise by default.
+
+
+const loadRecipe = async function (id) {
+  try {
+    const data = await (0, _helpers.AJAX)(`${_config.API_URL}${id}?key=${_config.KEY}`);
+    state.recipe = createRecipeObject(data); // If the recipe is bookmarked, it will has bookmark icon when the recipe is loaded
 
     if (state.bookmarks.some(bookmark => bookmark.id === id)) state.recipe.bookmarked = true;else state.recipe.bookmarked = false;
     console.log(state.recipe);
@@ -5193,8 +5259,9 @@ exports.loadRecipe = loadRecipe;
 
 const loadSearchResults = async function (query) {
   try {
-    state.search.query = query;
-    const data = await (0, _helpers.getJSON)(`${_config.API_URL}?search=${query}`); // console.log(data);
+    state.search.query = query; // By adding a KEY in url, it will load all recipes including the ones that contains our own key
+
+    const data = await (0, _helpers.AJAX)(`${_config.API_URL}?search=${query}&key=${_config.KEY}`); // console.log(data);
 
     /*
      => We want to create a new array which contains the new objects where the property names are different. We want to follow the camel case convention for the varaible names Ex. image_url => image
@@ -5205,7 +5272,10 @@ const loadSearchResults = async function (query) {
         id: rec.id,
         title: rec.title,
         publisher: rec.publisher,
-        image: rec.image_url
+        image: rec.image_url,
+        ...(rec.key && {
+          key: rec.key
+        })
       };
     }); //Set page = 1 everytime that user querys new results, if not,it won't update the page for new results
 
@@ -5242,8 +5312,13 @@ const updateServings = function (newServings) {
 
 exports.updateServings = updateServings;
 
-const addBookmark = function (recipe) {
+const persistBookmarks = function () {
   // Add bookmark
+  localStorage.setItem('bookmarks', JSON.stringify(state.bookmarks));
+};
+
+const addBookmark = function (recipe) {
+  // Add to bookmarks array
   state.bookmarks.push(recipe); // Mark current recipe as bookmarked
 
   /* 
@@ -5251,6 +5326,7 @@ const addBookmark = function (recipe) {
   */
 
   if (recipe.id === state.recipe.id) state.recipe.bookmarked = true;
+  persistBookmarks();
 };
 
 exports.addBookmark = addBookmark;
@@ -5261,9 +5337,64 @@ const deleteBookmark = function (id) {
   state.bookmarks.splice(index, 1); // Mark current recipe as NOT bookmarked
 
   if (id === state.recipe.id) state.recipe.bookmarked = false;
-};
+  persistBookmarks();
+}; // Upload the recipe to the API : newRecipe = a recipe object
+
 
 exports.deleteBookmark = deleteBookmark;
+
+const uploadRecipe = async function (newRecipe) {
+  /*
+  We put code in try-catch block here coz we expect an error may occur here, then we rethrow it, coz we want the controller to handle it and render the orror on the page later.
+  */
+  console.log(newRecipe);
+
+  try {
+    // 1) Create an ingredients array format for a recipe
+    const ingredients = Object.entries(newRecipe).filter(entry => entry[0].startsWith('ingredient') && entry[1] !== '').map(ing => {
+      // Replace an empty space with an empty string
+      //   const ingArr = ing[1].replaceAll('', '').split(',');
+      const ingArr = ing[1].split(',').map(el => el.trim());
+      if (ingArr.length !== 3) throw new Error('Wrong ingredients format! Please use the correct format :)');
+      const [quantity, unit, description] = ingArr;
+      return {
+        quantity: quantity ? +quantity : null,
+        unit,
+        description
+      };
+    }); // 2) Create a recipe object for API
+
+    const recipe = {
+      title: newRecipe.title,
+      source_url: newRecipe.sourceUrl,
+      image_url: newRecipe.image,
+      publisher: newRecipe.publisher,
+      cooking_time: +newRecipe.cookingTime,
+      servings: +newRecipe.servings,
+      ingredients
+    }; // The recipe that user create will have a key, use this to make an icon for the recipe that user create self
+
+    const data = await (0, _helpers.AJAX)(`${_config.API_URL}?key=${_config.KEY}`, recipe);
+    state.recipe = createRecipeObject(data);
+    addBookmark(state.recipe);
+    console.log(data);
+  } catch (err) {
+    throw err;
+  }
+};
+
+exports.uploadRecipe = uploadRecipe;
+
+const init = function () {
+  const storage = localStorage.getItem('bookmarks');
+  if (storage) state.bookmarks = JSON.parse(storage);
+};
+
+init();
+
+const clearBookmarks = function () {
+  localStorage.clear('bookmarks');
+}; // clearBookmarks();
 },{"regenerator-runtime":"e155e0d3930b156f86c48e8d05522b16","./config.js":"09212d541c5c40ff2bd93475a904f8de","./helpers.js":"0e8dcd8a4e1c61cf18f78e1c2563655d"}],"e155e0d3930b156f86c48e8d05522b16":[function(require,module,exports) {
 /**
  * Copyright (c) 2014-present, Facebook, Inc.
@@ -6020,13 +6151,14 @@ try {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.REC_PER_PAGE = exports.TIMEOUT_SEC = exports.API_URL = void 0;
+exports.MODEL_CLOSE_SEC = exports.KEY = exports.REC_PER_PAGE = exports.TIMEOUT_SEC = exports.API_URL = void 0;
 
 /*
  => In this file, we will basically put all the variables that should be constants and should be reused accross the project.
  => The goal of having this file with all these variables, is that it will allow us to easily configure our project by simply changing some of the data that is here, in this configuration file.
  => The variables that we want to put here are the ones that are responsible for kind of defining some important data about the application itself
  => Constant variables naming convention -> use capital letter, coz its a constant that will never change.
+ => We get the KEY from the Forkify API
  */
 const API_URL = 'https://forkify-api.herokuapp.com/api/v2/recipes/';
 exports.API_URL = API_URL;
@@ -6034,13 +6166,17 @@ const TIMEOUT_SEC = 10;
 exports.TIMEOUT_SEC = TIMEOUT_SEC;
 const REC_PER_PAGE = 10;
 exports.REC_PER_PAGE = REC_PER_PAGE;
+const KEY = '94cbc54a-fbcc-4ec5-89d5-6f6a51a378fb';
+exports.KEY = KEY;
+const MODEL_CLOSE_SEC = 2.5;
+exports.MODEL_CLOSE_SEC = MODEL_CLOSE_SEC;
 },{}],"0e8dcd8a4e1c61cf18f78e1c2563655d":[function(require,module,exports) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getJSON = void 0;
+exports.AJAX = void 0;
 
 var _regeneratorRuntime = require("regenerator-runtime");
 
@@ -6058,24 +6194,45 @@ const timeout = function (s) {
       reject(new Error(`Request took too long! Timeout after ${s} second`));
     }, s * 1000);
   });
-};
+}; // This function can do both get data from OR send data to API
 
-const getJSON = async function (url) {
+
+const AJAX = async function (url, uploadData = undefined) {
   try {
-    /* 
-    - Promise.race() will let 2 promises race with each other, take only 1 promise which occurs 1st
-    - We do it for preventing if we have really bad internet connections. Otherwise the fetch() could be running forever.
-    */
-    const res = await Promise.race([fetch(url), timeout(_config.TIMEOUT_SEC)]); // convert a response to json // json() is available on all response objects // res.json() returns a Promise
-
+    const fetchPro = uploadData ? fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(uploadData)
+    }) : fetch(url);
+    const res = await Promise.race([fetchPro, timeout(_config.TIMEOUT_SEC)]);
     const data = await res.json();
-    /* 
-    => Throw error here for errors that r not from the internet connection problem. Coz the promise will rejects for only 1 case, internet connection.
-    => Use message from data.message coz it gives more info 
-    */
+    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+/*
 
-    if (!res.ok) throw new Error(`${data.message} (${res.status})`); // this data is a resolved value of the promise that getJSON() returns
-
+// Get JSON from API
+export const getJSON = async function (url) {
+  try {
+    const fetchPro = fetch(url);
+  
+    // Promise.race() will let 2 promises race with each other, take only 1 promise which occurs 1st
+    // We do it for preventing if we have really bad internet connections. Otherwise the fetch() could be running // forever.
+   
+    const res = await Promise.race([fetchPro, timeout(TIMEOUT_SEC)]);
+    // convert a response to json // json() is available on all response objects // res.json() returns a Promise
+    const data = await res.json();
+     
+   // Throw error here for errors that r not from the internet connection problem. Coz the promise will rejects for // only 1 case, internet connection.
+   // Use message from data.message coz it gives more info 
+    
+    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+    // this data is a resolved value of the promise that getJSON() returns
     return data;
   } catch (err) {
     // Rethrow the error coz we want model.js to handle it
@@ -6083,7 +6240,37 @@ const getJSON = async function (url) {
   }
 };
 
-exports.getJSON = getJSON;
+// Send JSON to API
+=> headers{} == some snippets of text which are informations about the request itself
+=> 'Content-Type': 'application/json' == we tell API that the data we gonna send is gonna be in json format, then the API can correctly accept the data and create a new recipe in the DB
+=> body == the data that we want to send, must be in json format
+
+export const sendJSON = async function (url, uploadData) {
+  try {
+    const fetchPro = fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(uploadData),
+    });
+    const res = await Promise.race([fetchPro, timeout(TIMEOUT_SEC)]);
+    // API will return a data back after we send a recipe data to it
+    // This data contains status and a recipe with id, createdAt and key that is created from API
+    const data = await res.json();
+
+    if (!res.ok) throw new Error(`${data.message} (${res.status})`);
+    return data;
+  } catch (err) {
+    throw err;
+  }
+};
+
+
+*/
+
+
+exports.AJAX = AJAX;
 },{"regenerator-runtime":"e155e0d3930b156f86c48e8d05522b16","./config.js":"09212d541c5c40ff2bd93475a904f8de"}],"bcae1aced0301b01ccacb3e6f7dfede8":[function(require,module,exports) {
 "use strict";
 
@@ -6183,7 +6370,10 @@ class RecipeView extends _view.default {
             </div>
           </div>
 
-          <div class="recipe__user-generated">
+          <div class="recipe__user-generated ${this._data.key ? '' : 'hidden'}">
+            <svg>
+              <use href="${_icons.default}#icon-user"></use>
+            </svg>
           </div>
           <button class="btn--round btn--bookmark">
             <svg class="">
@@ -6377,7 +6567,7 @@ class View {
     _defineProperty(this, "_data", void 0);
   }
 
-  render(data) {
+  render(data, render = true) {
     // data can be an object or an array object, so we check both cases
     if (!data || Array.isArray(data) && data.length === 0) {
       // Exit this function immediately and also so render the error
@@ -6386,8 +6576,12 @@ class View {
 
     this._data = data;
 
-    const markup = this._generateMarkup(); // Set recipeContainer empty first
+    const markup = this._generateMarkup();
+    /* this if clause is for the rendering algorithm of Results and Bookmarks view, they use PreviewView to generate markup for them, so incase of PreviewView calling this method, we only want the markup.
+     */
 
+
+    if (!render) return markup; // Set recipeContainer empty first
 
     this._clear(); // Then add recipe in the recipeContainer
 
@@ -6424,7 +6618,6 @@ class View {
       if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== '') {
         // Update the text content of curEl to text content of newEl
         curEl.textContent = newEl.textContent;
-        console.log('new text ', newEl.textContent);
       } // 2) Update: change ATTRIBUTES
 
 
@@ -6918,6 +7111,8 @@ exports.default = void 0;
 
 var _view = _interopRequireDefault(require("./view.js"));
 
+var _previewView = _interopRequireDefault(require("./previewView.js"));
+
 var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
@@ -6937,20 +7132,58 @@ class ResultsView extends _view.default {
   }
 
   _generateMarkup() {
-    return this._data.map(this._generateMarkupPreview).join('');
+    // return this._data.map(this._generateMarkupPreview).join('');
+    return this._data.map(result => _previewView.default.render(result, false)).join('');
   }
 
-  _generateMarkupPreview(result) {
+}
+
+var _default = new ResultsView();
+
+exports.default = _default;
+},{"./view.js":"6a3957d8744bf1d70b2b44f3726dda59","url:../../img/icons.svg":"c9b93cf7eb41ad3e321b907fc09a943a","./previewView.js":"e4d6583325a8b6c9380670c4f233bf07"}],"e4d6583325a8b6c9380670c4f233bf07":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _view = _interopRequireDefault(require("./view.js"));
+
+var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// Parcel 2
+// This class will only generate preview markup for ResultsView and BokmarksView
+class PreviewView extends _view.default {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "_parentElement", '');
+  }
+
+  _generateMarkup(result) {
     const id = window.location.hash.slice(1);
     return ` 
     <li class="preview">
-            <a class="preview__link ${result.id === id ? 'preview__link--active' : ''}"  href="#${result.id}">
+            <a class="preview__link ${this._data.id === id ? 'preview__link--active' : ''}"  href="#${this._data.id}">
               <figure class="preview__fig">
-                <img src="${result.image}" alt="${result.title}" />
+                <img src="${this._data.image}" alt="${this._data.title}" />
               </figure>
               <div class="preview__data">
-                <h4 class="preview__title">${result.title}</h4>
-                <p class="preview__publisher">${result.publisher}</p>
+                <h4 class="preview__title">${this._data.title}</h4>
+                <p class="preview__publisher">${this._data.publisher}</p>
+              
+
+                <div class="preview__user-generated ${this._data.key ? '' : 'hidden'}">
+                  <svg>
+                    <use href="${_icons.default}#icon-user"></use>
+                  </svg>
+                </div> 
               </div>
             </a>
           </li>
@@ -6959,7 +7192,7 @@ class ResultsView extends _view.default {
 
 }
 
-var _default = new ResultsView();
+var _default = new PreviewView();
 
 exports.default = _default;
 },{"./view.js":"6a3957d8744bf1d70b2b44f3726dda59","url:../../img/icons.svg":"c9b93cf7eb41ad3e321b907fc09a943a"}],"d2063f3e7de2e4cdacfcb5eb6479db05":[function(require,module,exports) {
@@ -7046,6 +7279,141 @@ class PaginationView extends _view.default {
 }
 
 var _default = new PaginationView();
+
+exports.default = _default;
+},{"./view.js":"6a3957d8744bf1d70b2b44f3726dda59","url:../../img/icons.svg":"c9b93cf7eb41ad3e321b907fc09a943a"}],"7ed9311e216aa789713f70ebeec3ed40":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _view = _interopRequireDefault(require("./view.js"));
+
+var _previewView = _interopRequireDefault(require("./previewView.js"));
+
+var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// Parcel 2
+class BookmarksView extends _view.default {
+  constructor(...args) {
+    super(...args);
+
+    _defineProperty(this, "_parentElement", document.querySelector('.bookmarks__list'));
+
+    _defineProperty(this, "_errorMessage", 'No bookmarks yet. Find a nice recipe and bookmark it;)');
+
+    _defineProperty(this, "_message", '');
+  }
+
+  addHandlerRender(handler) {
+    window.addEventListener('load', handler);
+  }
+
+  _generateMarkup() {
+    // return this._data.map(this._generateMarkupPreview).join('');
+    return this._data.map(bookmark => _previewView.default.render(bookmark, false)).join('');
+  }
+
+}
+
+var _default = new BookmarksView();
+
+exports.default = _default;
+},{"./view.js":"6a3957d8744bf1d70b2b44f3726dda59","url:../../img/icons.svg":"c9b93cf7eb41ad3e321b907fc09a943a","./previewView.js":"e4d6583325a8b6c9380670c4f233bf07"}],"4dd83c2a08c1751220d223c54dc70016":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _view = _interopRequireDefault(require("./view.js"));
+
+var _icons = _interopRequireDefault(require("url:../../img/icons.svg"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+// Parcel 2
+class AddRecipeView extends _view.default {
+  /*
+  => NOTE: We create the constructor for class, coz we want to initialize _addHandlerShowWindow() when the page load. Normally we will call the handler methid in the init() of the controller coz most of handler in this app has to use the function in the controller. But this handler doesn't lean on any functions of controller, and the controller does not interfere it at all, so we just call it here.
+  => this constructor will be executed if we export new AddRecipeView() and import this object in the controller, then the controller will execute this file, then the object here will be created
+  */
+  constructor() {
+    // We have to call super() coz this class is a child class, so then we can use 'this' keyword
+    super();
+
+    _defineProperty(this, "_parentElement", document.querySelector('.upload'));
+
+    _defineProperty(this, "_message", 'Recipe was successfully uploaded :)');
+
+    _defineProperty(this, "_window", document.querySelector('.add-recipe-window'));
+
+    _defineProperty(this, "_overlay", document.querySelector('.overlay'));
+
+    _defineProperty(this, "_btnOpen", document.querySelector('.nav__btn--add-recipe'));
+
+    _defineProperty(this, "_btnClose", document.querySelector('.btn--close-modal'));
+
+    this._addHandlerShowWindow();
+
+    this._addHandlerHideWindow();
+  }
+
+  _toggleWindow() {
+    this._overlay.classList.toggle('hidden');
+
+    this._window.classList.toggle('hidden');
+  }
+
+  _addHandlerShowWindow() {
+    /*
+     =>  NOTE: BUG example: this code will create a bug coz we CAN'T use 'this' keyword inside of a handler function or any function ('this' keyword won't work in the function). 
+     => NOTE: this._overlay.classList.toggle('hidden'); == 'this' keyword of this line points to _btnOpen(the element that attach to addEventListener()). Which is not wat we want. We want 'this' keyword points to the object of this class.
+     => Use bind(this) to make this' keyword inside of a handler function points to the AddRecipeView object
+      ============================
+    this._btnOpen.addEventListener('click', function () {
+      this._overlay.classList.toggle('hidden');
+      this._window.classList.toggle('hidden');
+    });
+    */
+    this._btnOpen.addEventListener('click', this._toggleWindow.bind(this));
+  }
+
+  _addHandlerHideWindow() {
+    this._btnClose.addEventListener('click', this._toggleWindow.bind(this)); // overlay = if the user click outside the form, the form will also disappear
+
+
+    this._overlay.addEventListener('click', this._toggleWindow.bind(this));
+  }
+
+  addHandlerUpload(handler) {
+    this._parentElement.addEventListener('submit', function (e) {
+      e.preventDefault(); // Pass a form element in  FormData constructor, this = _parentElement
+      // FormData returns a wierd object that we can't really use, so we have to spread that object into an array
+      // [...new FormData(this)] == an array contains arrays of each field
+      // This array will contain all the fields with all the values in there.
+
+      const dataArr = [...new FormData(this)]; // Covert an array of arrays To an object with many properties
+
+      const data = Object.fromEntries(dataArr);
+      handler(data);
+    });
+  }
+
+  _generateMarkup() {}
+
+}
+
+var _default = new AddRecipeView();
 
 exports.default = _default;
 },{"./view.js":"6a3957d8744bf1d70b2b44f3726dda59","url:../../img/icons.svg":"c9b93cf7eb41ad3e321b907fc09a943a"}]},{},["f4fead3546a50ce2c296f19697e88508","1899f023ea6d4bfddfbaf17e59af669a","175e469a7ea7db1c8c0744d04372621f"], null)

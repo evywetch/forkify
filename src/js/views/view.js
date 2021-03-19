@@ -9,7 +9,7 @@ import recipeView from './recipeView';
 export default class View {
   _data;
 
-  render(data) {
+  render(data, render = true) {
     // data can be an object or an array object, so we check both cases
     if (!data || (Array.isArray(data) && data.length === 0)) {
       // Exit this function immediately and also so render the error
@@ -18,6 +18,9 @@ export default class View {
 
     this._data = data;
     const markup = this._generateMarkup();
+    /* this if clause is for the rendering algorithm of Results and Bookmarks view, they use PreviewView to generate markup for them, so incase of PreviewView calling this method, we only want the markup.
+     */
+    if (!render) return markup;
     // Set recipeContainer empty first
     this._clear();
     // Then add recipe in the recipeContainer
@@ -56,7 +59,6 @@ export default class View {
       ) {
         // Update the text content of curEl to text content of newEl
         curEl.textContent = newEl.textContent;
-        console.log('new text ', newEl.textContent);
       }
 
       // 2) Update: change ATTRIBUTES
