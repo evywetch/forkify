@@ -21,7 +21,7 @@ A food recipes application building with Javascript ES6, html, css, MVC and AJAX
 ## Libraries that are used with this app:
  1. Fractional Library
  
-## APIs that are used in with app:
+## APIs that are used with this app:
 1. Forkify API
 2. Local storage API from browser 
 3. History API from browser
