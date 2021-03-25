@@ -8,7 +8,15 @@ import recipeView from './recipeView';
 
 export default class View {
   _data;
-
+  /**
+   * Render the recieved object to the DOM
+   * @param {Object | Object[]} data The data to be rendered (e.g. recipe)
+   * @param {boolean} [render=true] Optional, if false, create markup string instead of rendering to the DOM
+   * @returns {undefined | string} A markup string is returned if render=false
+   * @this {Object} View instance
+   * @author Evy
+   * @todo Finish implementation
+   */
   render(data, render = true) {
     // data can be an object or an array object, so we check both cases
     if (!data || (Array.isArray(data) && data.length === 0)) {
@@ -26,11 +34,16 @@ export default class View {
     // Then add recipe in the recipeContainer
     this._parentElement.insertAdjacentHTML('afterbegin', markup);
   }
+  /**
+   *  NOTE: Update only the info ex. servings number, amount of ingredients in the DOM, So when we edit some info, we don't have to load the page again, it will change only the TEXT and data ATTRIBUTES in the current page.
+   * @param {Object | Object[]}  The data for generating an updated markup.
+   * @this {Object} View instance
+   * @author Evy
+   */
 
   update(data) {
     this._data = data;
     /**
-     NOTE: This method update only the info ex. servings number, amount of ingredients in the DOM, So when we edit some info, we don't have to load the page again, it will change only the TEXT and data ATTRIBUTES in the current page.
      => What we will do here is to create a new markup, but not render it. All we gonna do is to generate this markup and then compare that new HTML to the current HTML and then only change text and attributes that have changed from the old version to the new version.
      => We will convert this markup string to a DOM object that's living in the memory and that we can then use to compare with the actual DOM that's on the page. 
      => document.createRange() will create a range, and on the range we can then call another method.

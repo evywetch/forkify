@@ -1,5 +1,5 @@
 /*
-=> Anout import icons from '../img/icons.svg'; 
+=> About import icons from '../img/icons.svg'; 
   => We import it coz there are codes in const markup need to access icons from icons.svg
   => '../img/icons.svg' when we point out to the directory of a file, we look from the position that this file (controller.js) is, this file is in a src folder, we want to point to icons.svg. So the .. means the parent of this file with is src folder.
 => With Parcel 2
@@ -28,14 +28,18 @@ import addRecipeView from './views/addRecipeView.js';
 import 'core-js/stable'; // For polyfilling everthing else
 import 'regenerator-runtime/runtime'; // For polyfilling async/await
 /*
-Activate hot module reloading
+Activate hot module reloading 
+ => updating modules in the browser at runtime without needing a whole page refresh
  => module.hot != real JS
  => module.hot = coming from Parcel
  */
 if (module.hot) {
   module.hot.accept();
 }
-// This function will handle the showing recipe according to what recipe user chooses
+
+/**
+ * This function controls redering the recipe according to what recipe user chooses
+ */
 const controlRecipes = async function () {
   try {
     /*
@@ -65,7 +69,9 @@ const controlRecipes = async function () {
   }
 };
 
-// This function handles the displaying all recipes according to the query(on the left)
+/**
+ * This function controls the displaying all recipes according to the query(on the left)
+ */
 const controlSearchResults = async function () {
   try {
     resultsView.renderSpinner();
@@ -89,7 +95,11 @@ const controlSearchResults = async function () {
   }
 };
 
-// This function handles showing the recipes results when user clicking next/previous page
+/**
+ * This function controls rendering the recipes results when user clicking next/previous page
+ * @param {Number} goToPage = the page number that user wants to go to
+ */
+
 const controlPagination = function (goToPage) {
   // 1) Render NEW results
   resultsView.render(model.getSearchResultsPage(goToPage));
@@ -106,6 +116,9 @@ const controlServing = function (newServings) {
   recipeView.update(model.state.recipe);
 };
 
+/**
+ * Control adding or removing bookmarks and update the bookmark view
+ */
 const controlAddBookMark = function () {
   // 1) Add OR Remove a bookmark
   if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
@@ -116,10 +129,17 @@ const controlAddBookMark = function () {
   bookmarksView.render(model.state.bookmarks);
 };
 
+/**
+ * Render bookmarks view
+ */
 const controlBookmarks = function () {
   bookmarksView.render(model.state.bookmarks);
 };
 
+/**
+ * This function controls adding new recipe
+ * @param {Object} The new recipe object
+ */
 const controlAddRecipe = async function (newRecipe) {
   try {
     // Show loading spinner

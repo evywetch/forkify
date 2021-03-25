@@ -60,6 +60,7 @@ MVC (Model View Controller)
 5. run " npm install" it will then install SASS for us. If u still get the error with SASS here, just try to install SASS using the exact same vversion number Ex. "npm install sass@1.32.8"
 6. Then run "npm run start" again. Now we have a node_module and dist folder.
 7. Install Polyfills for ES6 features to our code base by running "npm i core-js regenerator-runtime"  And make sure to import them at the top of the .js file
+8. In package.json, we also created a 'build' command, it's used to build the final project files with compression and tree schaking and all of that, before we then deploy to a server
 NOTE:
 **** To run a command, has to run in "bash" NOT "node"
 **** If u get error, u can quit it using control + c
@@ -114,3 +115,20 @@ Ex. {prop1: 1, prop2: 2}  ==> [Array(2), Array(2)] == [['prop1', 1], ['prop2', 2
 => NOTE: Array.filter() == returns an aaray only the entries that we filtered in
 => NOTE: When we call an async function, have to use AWAIT keyword. Then we will a promise object from it; either resolve or reject promise, otherwise we won't get anything from that async function. Await keyword can only be used in async function!!
 => NOTE: && operator short-circiut
+=> NOTE: use unsplash.com  to get food picture's url.
+=> NOTE: Learn how to do code documentation, go to jsdoc.app
+=> Arrow functions
+=> Destructuring
+=> Async/ Await, promise
+=> AJAX
+
+
+
+                            Improvements for this app
+1. Display number of pages between the pagination buttons.
+2. Ability to SORT seach results by duration or number of ingredients.
+3. Perform ingredients validation in view, before submitting the form.
+4. Improve recipe ingredient input: separate in multiple fields and allow more than 6 ingredients.
+5. Shopping list feature: button on recipe to add ingredients to a list.
+6. Weekly meal planning feature: assign recipes to the next 7 days and show on a weekly calendar.
+7. Get nutrition data on each ingredient from spoonacular API (https://spoonacular.com/food-api) and calculte total calories of recipe.
