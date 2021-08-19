@@ -52,19 +52,21 @@ MVC (Model View Controller)
                                
 
 
-                                    Tool installation before start coding
-1. Install NPM => npm init => then get package.json
+                                   Tool installation before start coding
+1. Install NPM => 🍄npm init => then get package.json
 2. Set up the "scripts" in package.json
-3. Install Parcel => npm i parcel@next -D (parcel@next = choose the latest version)
-4. Start Parcel by running our npm scripts "npm run start". After running this coomand, u will get error coz it's trying to Install SASS. Quit it with control + c
-5. run " npm install" it will then install SASS for us. If u still get the error with SASS here, just try to install SASS using the exact same vversion number Ex. "npm install sass@1.32.8"
-6. Then run "npm run start" again. Now we have a node_module and dist folder.
-7. Install Polyfills for ES6 features to our code base by running "npm i core-js regenerator-runtime"  And make sure to import them at the top of the .js file
+3. Install Parcel => 🍄npm i parcel@next -D (parcel@next = choose the latest version) Then if will appear in the "dependencies" section in package.json.
+4. Start Parcel by running our npm scripts 🍄"npm run start". After running this coomand, it will install SAAS which will appear in package.json BUT u will get error (Can't find module saas) coz it's trying to Install SASS. Quit it with control + c
+5. run 🍄" npm install" it will then install SASS for us. If u still get the error with SASS here, just try to install SASS using the exact same npmversion number Ex. 🍄"npm install sass@1.32.8"
+6. Then run 🍄"npm run start" again. Now we have a node_module and dist folder. We have node_modules(contain tons of modules) and dist folder(contain compiled files from Parcel) 
+7. Install Polyfills for ES6 features to our code base by running 🍄"npm i core-js regenerator-runtime"  And make sure to import them at the top of the .js file
 8. In package.json, we also created a 'build' command, it's used to build the final project files with compression and tree schaking and all of that, before we then deploy to a server
 NOTE:
 **** To run a command, has to run in "bash" NOT "node"
 **** If u get error, u can quit it using control + c
 **** In Parcel, we can import more then just JS files, we can import all kinds of assets, that includes images.
+**** Parcel wil translate SAAS to CSS for the browser coz browser does not understand SAAS
+
 
                                     Libraries that used in this project
 1. Fractional Library
