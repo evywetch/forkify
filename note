@@ -136,7 +136,7 @@ Ex. {prop1: 1, prop2: 2}  ==> [Array(2), Array(2)] == [['prop1', 1], ['prop2', 2
 7. Get nutrition data on each ingredient from spoonacular API (https://spoonacular.com/food-api) and calculte total calories of recipe.
 
 
-                    Steps to fix if app looks wierd or doest work after cloned from GIT
+                                    Steps to fix if app looks wierd or doest work after cloned from GIT
 
 1. Replace package.json with this:
 
